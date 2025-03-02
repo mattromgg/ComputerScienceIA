@@ -124,6 +124,7 @@ export default function ClassInfoModalContent(props) {
                     </div>
                 </div>
                 <div>
+                    {/*Button pressed to delete class */}
                     <button className='delete-class-btn' onClick={() => deleteClass()}>Delete Class</button>
                     <EditStudentsModal onStudentsUpdated={updateClassData} class={content.scheduleClassID} studentEntries={classData.students}/>
                 </div>

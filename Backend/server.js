@@ -23,15 +23,16 @@ app.get('/', (re, res) => {
 })
 
 app.get('/ScheduleData', (req, res) => {
-    console.log("Schedule query")
+    console.log("Schedule query") // Message used to verify that http request is recieved by server
+    // SQL query fetches all schedule data, including the details of each class and the details of its teacher
     const sql = `SELECT Schedule.* , Classes.*, Teachers.*
                  FROM Schedule
                  INNER JOIN Classes ON Schedule.scheduleClassID = Classes.classID
                  INNER JOIN Teachers ON Classes.teacherID = Teachers.teacherID
                 `
     db.query(sql, (err, data) => {
-        if(err) return res.json(err);
-        return res.json(data);
+        if(err) return res.status(500).json(err); //Handle db error with suitable error code
+        return res.json(data); //Send data to frontend
     })
 })
 
@@ -124,10 +125,13 @@ app.post('/postStudent', (req, res) => {
     console.log("Student post...")
     console.log(req.body)
 
+    //  SQL query - Alters Students table
     const sql = "INSERT INTO Students (firstName, lastName, email) VALUES (?,?,?)"
 
+    //SQL query takes parameters from the body of the HTTP request which are in the form of JSON.
     db.query(sql, [req.body.firstName, req.body.lastName, req.body.email], (err, result) => {
-        if (err) return res.json(err);
+        //Tests whether record is inserted
+        if (err) return res.status(500).json(err);
         console.log("1 Student record inserted");
         console.log(result)
         return res.json(result)

@@ -26,7 +26,7 @@ export default function Schedule() {
 
 
     const rows = 7; //days
-    const cols = 25; //time columns
+    const cols = 25; //time columns (10:00 , 22:00)
 
     //Creation of 2D array. There is 7 days and each one has 25 empty slot objects 
     const timeSlots = new Array(rows).fill().map(() => new Array(cols).fill(createSlot()));
@@ -37,7 +37,7 @@ export default function Schedule() {
     //Current room is initially set to 1 by default
     const [currentRoom, setCurrentRoom] = useState(1);
      
-    //Creation of slot DOM elements, using nested iteration.
+    //Creation of Slot DOM elements, using nested iteration.
     const slotRows = slots.map((slotRow, rowIndex) => {
         const slotRowData = slotRow.map((slot, slotIndex) => {
             return <Slot onUpdate={() => onUpdateSchedule()} key={`${rowIndex}` + `${slotIndex}`} content={slot} row={rowIndex} />
@@ -47,11 +47,15 @@ export default function Schedule() {
 
     //
     function placeSlot(day, startTime, endTime, scheduleClassID, firstName, lastName, className, color) {
+        // Updating slots state
         setSlots((prevSlots) => {
+            // Array of slots including class being placed
             const updatedSlots = prevSlots.map((slotRow, rowIndex) => {
-                if(rowIndex === day) {
+                if(rowIndex === day) { // Checking if current row corresponds to the day the class runs on
                     return slotRow.map((timeSlot, slotIndex) => {
                         const teacherName = firstName + " " + lastName
+
+                        // Creating slot object in slot row, whether its at the start, middle or end of the class
                         if (slotIndex === startTime) {
                             return createSlot(scheduleClassID, teacherName, className, startTime, endTime, 1, color)      
                         }else if(slotIndex === endTime - 1) {
@@ -62,27 +66,37 @@ export default function Schedule() {
                         return timeSlot;
                     })
                 }
-                return  slotRow
+                return slotRow // If row unchanged return previous row
             })
+            // Value of state returned is the array with the newly altered slot objects
             return updatedSlots
         })
     }
 
+    //useEffect hook synchronizes component with external system (Backend)
+    // Runs on initial render as well as any time currentRoom state variable changes (see dependency array [currentRoom]).
     useEffect(()=> {
+        // Function fetches the schedule data to display it
         async function getSchedule() {
             try {
-                console.log("im trying to fetch data")
-                const res = await fetch('http://localhost:8081/ScheduleData')
-                const data = await res.json()
+                const res = await fetch('http://localhost:8081/ScheduleData') // HTTP request sent to backend
+                const data = await res.json() // Represent response into object format
 
-                console.log(data)
                 data.forEach(currSlot => {
-                    if(currSlot.room == currentRoom) {
-                        placeSlot(currSlot.day, currSlot.startTime, currSlot.endTime, currSlot.scheduleClassID, currSlot.firstName, currSlot.lastName, currSlot.name, currSlot.color)
+                    if(currSlot.room == currentRoom) { // Filter classes by room
+                        //Add class to the DOM with its properties
+                        placeSlot(currSlot.day, 
+                            currSlot.startTime, 
+                            currSlot.endTime, 
+                            currSlot.scheduleClassID, 
+                            currSlot.firstName, 
+                            currSlot.lastName, 
+                            currSlot.name, 
+                            currSlot.color)
                     }
                 })
             } catch (error) {
-                console.error("Error fetching Schedule Data : ", error)
+                console.error("Error fetching Schedule Data : ", error) // Error Handling
             }
         }
 
@@ -132,12 +146,13 @@ export default function Schedule() {
     }
 
     function changeRoom(roomNumber) {
-        setSlots(timeSlots)
-        setCurrentRoom(roomNumber)
+        setSlots(timeSlots) // Reset Schedule
+        setCurrentRoom(roomNumber) // Room state variable changes => causes timeSlots to be refilled
     }
 
     return (
         <>  
+            {/* Room is selected via drop down. Room is changed when an option is selected */}
             <select value={currentRoom} onChange={(e) => changeRoom(e.target.value)} className="room-select">
                 <option value={1}>Room 1</option>
                 <option value={2}>Room 2</option>
