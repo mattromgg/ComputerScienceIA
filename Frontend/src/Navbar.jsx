@@ -8,7 +8,7 @@ export default function Navbar() {
     return (
         <>
         <navbar>
-            <div>OHM-MHO Admin Panel</div>
+            <div>Admin Panel</div>
 
         </navbar>
         </>

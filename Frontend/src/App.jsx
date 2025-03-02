@@ -5,10 +5,8 @@ import Schedule from './Schedule'
 import AddStudentModal from './AddStudentModal'
 import AddTeacherModal from './AddTeacherModal'
 import AddClassModal from './AddClassModal'
-import AllStudentsModal from './AllStudentsModal'
 
 function App() {
-
 
   return (
     <div className='app'>
@@ -17,9 +15,7 @@ function App() {
         <AddStudentModal />
         <AddTeacherModal />
         <AddClassModal />
-        <AllStudentsModal />
       </nav>
-
       <Schedule /> 
     </div>
   )

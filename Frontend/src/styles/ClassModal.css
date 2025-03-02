@@ -36,8 +36,16 @@
 
 .day{
     display: grid;
-    grid-template-columns: repeat(3, 70px);
+    grid-template-columns: 40px 80px 80px;
     margin-bottom: 1rem;
+}
+.day > *{
+    display: flex;
+    align-items: center;
+}
+
+.day > select {
+    width: 80px;
 }
 
 

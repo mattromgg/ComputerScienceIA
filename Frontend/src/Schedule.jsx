@@ -1,39 +1,51 @@
-import Slot from './Slot'
-import {useState, useEffect} from 'react'
+import Slot from './Slot' 
+import {useState, useEffect} from 'react' 
 import './styles/Schedule.css'
 
-//Room 1: 8 students max
-//Room 2: 24
-//Room 3: 
 
 export default function Schedule() {
 
+    //Function used to return an object with required properties of each slot.
+    /**
+     * 
+     * @param {integer} scheduleClassID - ClassID from database
+     * @param {String} teacherName 
+     * @param {String} className 
+     * @param {integer} startTime - Index of slot at start time
+     * @param {integer} endTime - Index of slot at end time
+     * @param {integer} isStart - 1 for start position, -1 for end position, 2 for position between
+     * @param {String} color - Hexadecimal format
+     * @returns {Object}
+     */
+
     function createSlot(scheduleClassID, teacherName, className, startTime, endTime, isStart, color) {
-        return {scheduleClassID, teacherName, className, startTime, endTime, isStart, color}
+        const slotObject = {scheduleClassID, teacherName, className, startTime, endTime, isStart, color};
+        console.log(slotObject);
+        return slotObject;
     }
 
 
-    const rows = 7;
-    const cols = 25;
+    const rows = 7; //days
+    const cols = 25; //time columns
+
+    //Creation of 2D array. There is 7 days and each one has 25 empty slot objects 
     const timeSlots = new Array(rows).fill().map(() => new Array(cols).fill(createSlot()));
 
-
-
+    //State of slots, initially set to timeSlots array
     const [slots, setSlots] = useState(timeSlots);
 
+    //Current room is initially set to 1 by default
     const [currentRoom, setCurrentRoom] = useState(1);
      
-
-
- 
+    //Creation of slot DOM elements, using nested iteration.
     const slotRows = slots.map((slotRow, rowIndex) => {
         const slotRowData = slotRow.map((slot, slotIndex) => {
-            console.log(slot)
             return <Slot onUpdate={() => onUpdateSchedule()} key={`${rowIndex}` + `${slotIndex}`} content={slot} row={rowIndex} />
         })
         return <div key={rowIndex} className="slotRow">{slotRowData}</div>
     })
 
+    //
     function placeSlot(day, startTime, endTime, scheduleClassID, firstName, lastName, className, color) {
         setSlots((prevSlots) => {
             const updatedSlots = prevSlots.map((slotRow, rowIndex) => {
@@ -121,7 +133,6 @@ export default function Schedule() {
 
     function changeRoom(roomNumber) {
         setSlots(timeSlots)
-        console.log("hello")
         setCurrentRoom(roomNumber)
     }
 
