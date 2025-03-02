@@ -16,7 +16,7 @@ export default function Slot(props) {
         if(slotData.isStart === 1) {
             return <div onClick={handleClick} style={{backgroundColor: slotData.color, borderRight: "none"}} className='slot'>{slotData.className}</div>
         }else if (slotData.isStart === -1) {
-            return <div onClick={handleClick} style={{backgroundColor: slotData.color, borderLeft: "none"}} className='slot'>Teacher: {slotData.teacher}</div>
+            return <div onClick={handleClick} style={{backgroundColor: slotData.color, borderLeft: "none"}} className='slot'>Teacher: {slotData.teacherName}</div>
         }else if(slotData.isStart === 2) {
             return <div onClick={handleClick} style={{backgroundColor: slotData.color, borderLeft: "none", borderRight: "none"}} className='slot'></div>
         }else {
