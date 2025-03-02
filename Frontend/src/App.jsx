@@ -1,18 +1,20 @@
 import {useState, useEffect} from 'react'
 import './styles/App.css'
-import Navbar from './Navbar'
+import Title from './Title'
 import Schedule from './Schedule'
 import AddStudentModal from './AddStudentModal'
 import AddTeacherModal from './AddTeacherModal'
 import AddClassModal from './AddClassModal'
 
+//Entry point to application, renders application layout 
+//Renders layout including: title, components for "Add" modals and schedule table
 function App() {
 
   return (
     <div className='app'>
       <nav>
-        <Navbar />
-        <AddStudentModal />
+        <Title />
+        <AddStudentModal /> 
         <AddTeacherModal />
         <AddClassModal />
       </nav>

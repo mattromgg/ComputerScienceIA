@@ -3,7 +3,7 @@ import React from "react";
 import "./styles/Navbar.css"
 
 
-export default function Navbar() {
+export default function Title() {
     
     return (
         <>
