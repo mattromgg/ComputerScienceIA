@@ -73,69 +73,52 @@ export default function AddClassModalContent({onClose}) {
     const daySelections = formData.schedule.map((day, index) => (
         <div className='day' key={index}>
             <div>{day.dayName}</div>
-            <select className="start-time"  onChange={(e) => updateStartTime(day, e.target.value, index)}>
+            <select className="start-time"  onChange={(e) => updateStartTime(e.target.value, index)}>
                 <option value="-1">Start</option>
                 {timeOptions}
             </select>
 
-            <select className="end-time" onChange={(e) => updateEndTime(day, e.target.value, index)}>
+            <select className="end-time" onChange={(e) => updateEndTime(e.target.value, index)}>
                 <option value="100">End</option>
                 {timeOptions}
             </select>
         </div>
     ))
 
-    function updateStartTime(dayObject, value, index) {
-        if (parseInt(value, 10) < parseInt(dayObject.endTime, 10)){
-            console.log(`StartTimeValue: ${value} is smaller than End Time: ${dayObject.endTime} ...Correct!`)
-            setFormData((prevFormData) => {
-                return ({
-                ...prevFormData,
-                schedule: prevFormData.schedule.map((day, dayIndex) => {
-                    if (index === dayIndex) {
-                        return {
-                            ...prevFormData.schedule[index],
-                            startTime: parseInt(value,10)
-                        }
-                    }else {
-                        return day;
-                    }
-                })
-                })
-            })
-        }else {
-            console.log(`StartTimeValue: ${value} is bigger or equals than End Time: ${dayObject.endTime} ...Incorrect`)
-            setFormData((prevFormData)=> {
-                return ({...prevFormData})
-            })
-        }
+
+    function updateStartTime(value, index) {
+        setFormData(prevFormData => {
+            const newStartTime = parseInt(value, 10);
+            const newSchedule = [...prevFormData.schedule];
+
+            newSchedule[index] = { ...newSchedule[index], startTime: newStartTime };
+
+            if (newStartTime >= newSchedule[index].endTime && newSchedule[index].endTime !== 100) {
+                console.log(`Warning: Start time (${newStartTime}) should be less than end time (${newSchedule[index].endTime})`);
+                // You could add additional UI feedback here
+            }
+
+            return { ...prevFormData, schedule: newSchedule };
+        })
     }
 
-    function updateEndTime(dayObject, value, index) { 
-        if(parseInt(value, 10) > parseInt(dayObject.startTime, 10)) {
-            console.log(`EndTimeValue: ${value} is larger than Start Time: ${dayObject.startTime} ...Correct!`)
-            setFormData((prevFormData) => {
-                return({ 
-                ...prevFormData,
-                schedule: prevFormData.schedule.map((day, dayIndex) => {
-                    if (index === dayIndex) {
-                        return {
-                            ...prevFormData.schedule[index],
-                            endTime: parseInt(value,10)
-                        }
-                    }else {
-                        return day;
-                    }
-                })
-                })
-            })
-        }else {
-            console.log(`EndTimeValue: ${value} is smaller or equals than Start Time: ${dayObject.startTime} ...Incorrect`)
-            setFormData((prevFormData)=> {
-                return ({...prevFormData})
-            })
-        }
+    function updateEndTime(value, index) { 
+        setFormData((prevFormData) => {
+            const newEndTime = parseInt(value, 10);
+            const newSchedule = [...prevFormData.schedule];
+            
+            // Always update the value, but add validation feedback if needed
+            newSchedule[index] = { ...newSchedule[index], endTime: newEndTime };
+            
+            if (newEndTime <= newSchedule[index].startTime && newSchedule[index].startTime !== -1) {
+                console.log(`Warning: End time (${newEndTime}) should be greater than start time (${newSchedule[index].startTime})`);
+                // You could add additional UI feedback here
+            }
+            
+            return { ...prevFormData, schedule: newSchedule };
+        });
     }
+
 
     function formIsValid() {
         let isValid = true;
@@ -167,22 +150,19 @@ export default function AddClassModalContent({onClose}) {
         const res = await fetch(`http://localhost:8081/getSchedule/${formData.room}`)
         const data = await res.json()
 
-        console.log(data)
-
-
-        const newClassDays = formData.schedule.filter((day, index) => day.endTime < 100 && day.startTime > -1)
+        const newClassDays = formData.schedule.filter((day) => day.endTime < 100 && day.startTime > -1)
 
         for (const newClassDay of newClassDays) {
             for (const prevDay of data) {
                 if (newClassDay.id === prevDay.day) {
-                    console.log("im aknowledging thoo")
-                    console.log(newClassDay.startTime <= prevDay.startTime && newClassDay.endTime > prevDay.endTime)
-                    console.log(newClassDay.endTime >= prevDay.endTime && newClassDay.startTime < prevDay.startTime)
-                    console.log(newClassDay.startTime <= prevDay.startTime && newClassDay.endTime >= prevDay.endTime)
-                    if ((newClassDay.startTime <= prevDay.startTime && newClassDay.endTime > prevDay.endTime) ||
-                        (newClassDay.endTime >= prevDay.endTime && newClassDay.startTime < prevDay.startTime) ||
-                        (newClassDay.startTime <= prevDay.startTime && newClassDay.endTime >= prevDay.endTime)){
-                            console.log("Chop that rnnn")
+                    const newStart = newClassDay.startTime;
+                    const newEnd = newClassDay.endTime;
+                    const prevStart = prevDay.startTime;
+                    const prevEnd = prevDay.endTime;
+                    if ((newStart >= prevStart && newStart < prevEnd) ||
+                        (newEnd > prevStart && newEnd <= prevEnd) ||
+                        (newStart <= prevStart && newEnd >= prevEnd)){
+                            console.log(`Time Conflict on ${newClassDay.dayName} from ${prevStart} to ${prevEnd}`)
                             return false;
                             
                     }
@@ -195,6 +175,8 @@ export default function AddClassModalContent({onClose}) {
 
     async function addClassToDB(event) {
         event.preventDefault();
+
+        console.log(formData.schedule)
 
         const isAvailable = await checkSpace()
         
