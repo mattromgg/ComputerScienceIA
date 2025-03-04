@@ -10,19 +10,20 @@ export default function ClassInfoModalContent(props) {
 
     const content = props.classInfo
 
+    // State variable for class data. An object of two arrays
     const [classData, setClassData] = useState({
         scheduleEntries: [],
         students: []
     })
-
+    
+    //reruns whenever classID changes, see dependency array ([content.scheduleClassID])
     useEffect (() => {
-
+        // Data from database is retrieved regarding the class
         async function getClassData() {
-            const res = await fetch(`http://localhost:8081/getClassInfo/${content.scheduleClassID}`)
-            const data = await res.json()
-            
-            //console.log(data)
+            const res = await fetch(`http://localhost:8081/getClassInfo/${content.scheduleClassID}`) //HTTP request sent
+            const data = await res.json() // Formatting of JSON data
 
+            // Data is in form {[], []}
             setClassData(data)
         }
         getClassData()
@@ -59,20 +60,22 @@ export default function ClassInfoModalContent(props) {
         return <div className='student-entry' key={index}>{entry.email}</div>
     })
 
+    // Asynchronous operation, changes made to DOM, only after class is deleted from DB
     async function deleteClass() {
+        //HTTP request sent with path parameter.
+        //Method is specified
+        //Header specifies what data it expects from the server response
         const res = await fetch(`http://localhost:8081/deleteClass/${content.scheduleClassID}`, {
             method: "DELETE",
             headers: {'Content-Type': 'application/json',},
         })
-        
         const data = await res.json() 
-        console.log(data)
         if (res.ok) {
-            console.log("Class Was Deleted")
-            props.onClose()
-            await props.onUpdate()
+            console.log("Class Was Deleted")// Test through Confirmation
+            props.onClose()//Modal closes
+            await props.onUpdate() //Reference to prop initially passed down from Schedule.jsx
         }else {
-            alert('Failed to delete class.');
+            alert('Failed to delete class.'); //Error handling
         } 
     }
 
@@ -126,7 +129,7 @@ export default function ClassInfoModalContent(props) {
                 <div>
                     {/*Button pressed to delete class */}
                     <button className='delete-class-btn' onClick={() => deleteClass()}>Delete Class</button>
-                    <EditStudentsModal onStudentsUpdated={updateClassData} class={content.scheduleClassID} studentEntries={classData.students}/>
+                    <EditStudentsModal onStudentsUpdated={updateClassData} class={content.scheduleClassID} students={classData.students}/>
                 </div>
             </div>
             <button className="close-btn" onClick={props.onClose}>×</button> 

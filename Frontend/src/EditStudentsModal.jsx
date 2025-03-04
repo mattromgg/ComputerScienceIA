@@ -12,7 +12,7 @@ export default function EditStudentsModal(props) {
         <button className="edit-class-btn" onClick={()=>setShowModal(true)}>
             Add/Remove Students
         </button>
-        {showModal && createPortal(<EditStudentsModalContent onStudentsUpdated={props.onStudentsUpdated} class={props.class} students={props.studentEntries} onClose={() => setShowModal(false)} />, document.body
+        {showModal && createPortal(<EditStudentsModalContent onStudentsUpdated={props.onStudentsUpdated} class={props.class} students={props.students} onClose={() => setShowModal(false)} />, document.body
         )}
     </>
     ) 

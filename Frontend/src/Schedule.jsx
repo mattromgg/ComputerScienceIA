@@ -103,6 +103,7 @@ export default function Schedule() {
         getSchedule();
     }, [currentRoom])
 
+    // Asynchronous function retrieves schedule once more in order for updated slots to be displayed
     async function onUpdateSchedule() {
         try {
             console.log("im trying to fetch data")

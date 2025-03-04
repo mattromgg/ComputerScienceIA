@@ -19,10 +19,11 @@ export default function AddClassModalContent({onClose}) {
     useEffect(() => {
         async function getTeachers() {
             try {
-                const res = await fetch('http://localhost:8081/getTeachers');
+                const res = await fetch('http://localhost:8081/getTeachers');//HTTP request
                 const data = await res.json();
                 
                 console.log(data)
+                //response used to create objects with teacher ID and their full name.
                 const teachers = data.map((teacher) => (
                     {
                         teacherID: teacher.teacherID,
@@ -30,7 +31,7 @@ export default function AddClassModalContent({onClose}) {
                     }
                 ))
                 console.log(teachers)
-
+                //Option elements created
                 setTeacherOptions(
                     teachers.map((teacher, index) => (
                         <option key={index} value={teacher.teacherID}>
@@ -40,7 +41,7 @@ export default function AddClassModalContent({onClose}) {
                 )
             
             }catch (error){
-                console.log("Error fetching Teachers Data: " + error)
+                console.log("Error fetching Teachers Data: " + error) //Error handling
             }
         }
 
@@ -52,8 +53,12 @@ export default function AddClassModalContent({onClose}) {
     const [formData, setFormData] = useState({
         name: "",
         teacher: "",
+        //Default room is set to 1
         room: 1,
+        //Hexadecimal format
         color: "",
+        //Schedule array. Composed of 2d array, with each day having object:
+        // {id, dayName, startTime, endTime}
         schedule: initialSchedule
     });
 
@@ -95,7 +100,6 @@ export default function AddClassModalContent({onClose}) {
 
             if (newStartTime >= newSchedule[index].endTime && newSchedule[index].endTime !== 100) {
                 console.log(`Warning: Start time (${newStartTime}) should be less than end time (${newSchedule[index].endTime})`);
-                // You could add additional UI feedback here
             }
 
             return { ...prevFormData, schedule: newSchedule };
@@ -107,12 +111,10 @@ export default function AddClassModalContent({onClose}) {
             const newEndTime = parseInt(value, 10);
             const newSchedule = [...prevFormData.schedule];
             
-            // Always update the value, but add validation feedback if needed
             newSchedule[index] = { ...newSchedule[index], endTime: newEndTime };
             
             if (newEndTime <= newSchedule[index].startTime && newSchedule[index].startTime !== -1) {
                 console.log(`Warning: End time (${newEndTime}) should be greater than start time (${newSchedule[index].startTime})`);
-                // You could add additional UI feedback here
             }
             
             return { ...prevFormData, schedule: newSchedule };
@@ -123,7 +125,8 @@ export default function AddClassModalContent({onClose}) {
     function formIsValid() {
         let isValid = true;
         let emptyCount = 0;
-
+        //Default values are -1 and 100
+        //Ensuring that the schedule entered by the user has non-default values
         formData.schedule.forEach((day) => {
             if(day.startTime === -1 && day.endTime === 100) {
                 emptyCount++;
@@ -137,8 +140,9 @@ export default function AddClassModalContent({onClose}) {
                 return 0
             }
         })
+        // Checking to see if no there was no schedule input
         if (emptyCount === 7){
-            console.log("You must have at least one slot entry.")
+            console.log("You must have at least one slot entry.") //Error msg
             isValid = false;
         }
 
@@ -147,64 +151,68 @@ export default function AddClassModalContent({onClose}) {
 
 
     async function checkSpace() {
+        //HTTP request returns all schedule records that are located in room chosen by user
         const res = await fetch(`http://localhost:8081/getSchedule/${formData.room}`)
         const data = await res.json()
-
+        //Array of days where class is scheduled with valid start and end times
         const newClassDays = formData.schedule.filter((day) => day.endTime < 100 && day.startTime > -1)
-
+        
+        //Iterate through days where class is taken
         for (const newClassDay of newClassDays) {
+            //For each day iterate through existing classes on that day
             for (const prevDay of data) {
                 if (newClassDay.id === prevDay.day) {
                     const newStart = newClassDay.startTime;
                     const newEnd = newClassDay.endTime;
                     const prevStart = prevDay.startTime;
                     const prevEnd = prevDay.endTime;
+                    //Conditions to check whether class overlaps with any existing one
                     if ((newStart >= prevStart && newStart < prevEnd) ||
                         (newEnd > prevStart && newEnd <= prevEnd) ||
                         (newStart <= prevStart && newEnd >= prevEnd)){
+                            //error message
                             console.log(`Time Conflict on ${newClassDay.dayName} from ${prevStart} to ${prevEnd}`)
-                            return false;
+                            return false; //Conflict is found
                             
                     }
                 }
             }
         }
-        console.log("Nah u good add that class, good boy")
-        return true
+        
+        return true //no conflicts found
     }
 
     async function addClassToDB(event) {
         event.preventDefault();
-
-        console.log(formData.schedule)
-
+        //checkSpace() returns true if class schedule does not overlap with any pre-existing classes
         const isAvailable = await checkSpace()
-        
-
+        //Validation for adding class
         if (formIsValid() && isAvailable) {
-            console.log("This is the data that will be sent:")
-            console.log(formData)
             try {
-                const res = await fetch(`http://localhost:8081/postClass`, {
+                const res = await fetch(`http://localhost:8081/postClass`, { //POST HTTP request
                     method: "POST",
+                    //Form data is being sent as request, so body and headers match this accordingly
                     headers: {'Content-Type': 'application/json',},
                     body: JSON.stringify(formData)
             
                 })
                 if (res.ok) {
-                    console.log("we got the res")
+                    //After operation state variables are reset
                     setFormData({name: "", teacher: "", room: 1, schedule: initialSchedule})
                     setTeacherOptions([])
+                    //Modal is closed and page is reloaded, will cause schedule to be re-rendered
                     onClose()
                     window.location.reload();
+                    //Test to see if action successful
                     alert("Class Has been Successfully Added")
                 }else {
-                    alert('Error In Adding Class');
+                    alert('Error In Adding Class');//error handling
                 }       
             } catch (err) {
-                console.error('Error:' + err) 
+                console.error('Error:' + err) //error handling
             }
         }else {
+            //Form is incomplete, or there are errors in its input
             console.log("Schedule is not ready yet.")
         }
 

@@ -60,35 +60,37 @@ app.get('/getTeachers', (req, res) => {
     })
 })
 
+//Path paremeter used in url
 app.get('/getClassInfo/:classID',(req, res) => {
     console.log('Class Info GET...')
-    console.log(req.params)
+    //enabling classID to be accessed from the path parameter
     const {classID} = req.params
-
-        const scheduleQuery = `
+    // Query used to retrieve all Schedule entries corresponding to classID
+    const scheduleQuery = `
             SELECT Schedule.*
             FROM Schedule
             WHERE Schedule.scheduleClassID = ?;
         `;
-
-        const studentQuery = `
+    //Query used to retrive all students which take the class
+    const studentQuery = `
             SELECT Students.*
             FROM Students
             JOIN ClassesTaken ON Students.studentID = ClassesTaken.takenStudentID
             WHERE ClassesTaken.takenClassID = ?
         `
-
-        db.query(scheduleQuery, [classID], (err1, scheduleResult) => {
-            if (err1) return res.status(500).json({ error: 'Database query failed'});
-
-            db.query(studentQuery, [classID], (err2, studentResult)=> {
-                if (err2) return res.status(500).json({error: 'Database query failed'});
-                res.json({
-                    scheduleEntries: scheduleResult,
-                    students: studentResult
-                });
-            })
-        });
+    //First, schedule query is ran
+    db.query(scheduleQuery, [classID], (err1, scheduleResult) => {
+        if (err1) return res.status(500).json({ error: 'Schedule query failed'});
+        //Nested query. Then, student query is ran
+        db.query(studentQuery, [classID], (err2, studentResult)=> {
+            if (err2) return res.status(500).json({error: 'Student query failed'});
+            //Response contains an object of two arrays. Each with the result of their query
+            res.json({
+                scheduleEntries: scheduleResult,
+                students: studentResult
+            });
+        })
+    });
 })
 
 app.get('/getStudents', (req, res) => {
@@ -104,19 +106,19 @@ app.get('/getStudents', (req, res) => {
     })
 })
 
+//Path url parameter used
 app.delete('/deleteClass/:classID', (req, res) => {
     console.log("Delete Class...")
     const {classID} = req.params
-    console.log(classID)
 
     const deleteQuery = `
     DELETE
     FROM Classes
     WHERE Classes.classID = ?;
     `;
-
+    //Parameterized query parameter
     db.query(deleteQuery, [classID], (err, result)=> {
-        if(err) return res.status(500).json(err);
+        if(err) return res.status(500).json(err); //suitable error handling
         return res.json(result);
     })
 })
@@ -157,28 +159,28 @@ app.post('/postTeacher', (req, res) => {
 app.post('/postClass', (req, res) => {
     console.log("Class Post...");
     console.log(req.body);
-
+    //Properties for Class record are placed into object for insertion into DB
     const classContent = {
         name: req.body.name,
         teacherID: req.body.teacher,
         color: req.body.color
     };
 
-    console.log(classContent);
-
     const classSQL = "INSERT INTO Classes (name, teacherID, color) VALUES (?,?,?)";
-
+    //Nested query. First Class record is inserted.
     db.query(classSQL, [classContent.name, classContent.teacherID, classContent.color], (err, result) => {
-        if (err) return res.status(500).json(err); // Important: Return error with appropriate status code
+        if (err) return res.status(500).json(err); //Return error with appropriate status code
         console.log("1 Class Record inserted");
         const classInsertID = result.insertId; // Now classInsertID is correctly set
+    // Filtering schedule array, only including the times where a slot will be filled
+        const scheduleTimeInfo = req.body.schedule.filter((day) => day.startTime >= 0); 
 
-        const scheduleTimeInfo = req.body.schedule.filter((day) => day.startTime >= 0); // Simplified filter
-
+        //Parameterized query
         const scheduleSQL = "INSERT INTO Schedule (scheduleClassID, day, startTime, endTime, room) VALUES (?,?,?,?,?)";
 
-        // Use a loop that respects asynchronous operations (e.g., for...of or Promise.all)
-        let schedulePromises = scheduleTimeInfo.map(activeSlot => {
+        //Array of promises. Each one involves the insertion of schedule record.
+        //Used since there can be multiple schedule slots referring to class
+        const schedulePromises = scheduleTimeInfo.map(activeSlot => {
           return new Promise((resolve, reject) => {
             db.query(scheduleSQL, [classInsertID, activeSlot.id, activeSlot.startTime, activeSlot.endTime, req.body.room], (err, result) => {
               if (err) reject(err);
@@ -189,9 +191,9 @@ app.post('/postClass', (req, res) => {
             });
           });
         });
-
+         // Send a single response after all inserts
         Promise.all(schedulePromises)
-          .then(results => res.json({ message: "Class and schedule inserted", classId: classInsertID, scheduleResults: results })) // Send a single response after all inserts
+          .then(results => res.json({ message: "Class and schedule inserted", classId: classInsertID, scheduleResults: results })) 
           .catch(err => res.status(500).json(err)); // Handle errors from schedule inserts
 
     });
@@ -201,43 +203,50 @@ app.post('/postClass', (req, res) => {
 app.post('/postClassesTaken', (req, res) => {
     console.log("Classes Taken POST...")
     console.log(req.body)
-
+    //Properties from body object declared as variables
     const studentsToAdd = req.body.studentsToAdd;
-    console.log(studentsToAdd)
     const studentsToRemove = req.body.studentsToRemove;
     const classID = req.body.classID
-    
+
+    //Array of promises, each one represents the success or failure of inserting student into class
     const addStudentPromises = studentsToAdd.map(student => {
+        // Parameterized SQL query inserts record into ClassesTaken table
         const addSQL = "INSERT INTO ClassesTaken(takenStudentID, takenClassID) VALUES(?, ?)"
         return new Promise((resolve, reject) => {
             db.query(addSQL, [student, classID], (err, result) => {
-                if(err) reject(err)
+                if(err) reject(err) //if error return failure
                 else {
                     console.log("1 ClassesTaken record inserted")
-                    resolve(result)
+                    resolve(result) //if query successful return success
                 }
             })
         })
     })
 
+    //Array of promises, each one represents the success or failure of removing student from class
     const removeStudentPromises = studentsToRemove.map(student => {
+        // Parameterized SQL query remove record into ClassesTaken table
         const removeSQL = `DELETE FROM ClassesTaken WHERE takenStudentID=${student} AND takenClassID=${classID}`
         return new Promise((resolve, reject) => {
             db.query(removeSQL, (err, result) => {
-                if(err) reject(err);
+                if(err) reject(err); //if error return failure
                 else {
                     console.log("1 ClassesTaken record deleted")
-                    resolve(result)
+                    resolve(result) //if query successful return success
                 }
             })
         })
     })
 
+    //Iterate through each Promise both inserting and removing students and running them.
     Promise.all([...addStudentPromises, ...removeStudentPromises])
+    //Will return a success if all ClassesTaken modifications on each promise is a success.
+    //Successful result is sent in response
     .then(results => {
         console.log("ClassesTaken table updated successfully. Results:", results);
         res.json({ message: "ClassesTaken table updated", content: results });
     })
+    //If one promise fails the whole operation fails. Error is sent in response
     .catch(err => {
         console.error("Error updating ClassesTaken table:", err);
         res.status(500).json({ error: "Failed to update ClassesTaken table", details: err.message });
