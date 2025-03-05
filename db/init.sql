@@ -76,35 +76,6 @@ INSERT INTO `ClassesTaken` VALUES (1,4,4),(2,36,4),(3,14,4),(4,16,4),(5,5,4),(6,
 UNLOCK TABLES;
 
 --
--- Table structure for table `ClassesTaught`
---
-
-DROP TABLE IF EXISTS `ClassesTaught`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ClassesTaught` (
-  `taughtID` int NOT NULL AUTO_INCREMENT,
-  `taughtTeacherID` int NOT NULL,
-  `taughtClassID` int NOT NULL,
-  PRIMARY KEY (`taughtID`),
-  UNIQUE KEY `classTaughtID_UNIQUE` (`taughtID`),
-  KEY `taughtTeacherID_idx` (`taughtTeacherID`),
-  KEY `taughtClassID_idx` (`taughtClassID`),
-  CONSTRAINT `taughtClassID` FOREIGN KEY (`taughtClassID`) REFERENCES `Classes` (`classID`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `taughtTeacherID` FOREIGN KEY (`taughtTeacherID`) REFERENCES `Teachers` (`teacherID`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ClassesTaught`
---
-
-LOCK TABLES `ClassesTaught` WRITE;
-/*!40000 ALTER TABLE `ClassesTaught` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ClassesTaught` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `Schedule`
 --
 
@@ -158,7 +129,7 @@ CREATE TABLE `Students` (
 
 LOCK TABLES `Students` WRITE;
 /*!40000 ALTER TABLE `Students` DISABLE KEYS */;
-INSERT INTO `Students` VALUES (1,'Constantine','McCorry','cmccorry0@constantcontact.com'),(2,'Trula','Milsted','tmilsted1@instagram.com'),(3,'Catherina','Armitage','carmitage2@last.fm'),(4,'Genevieve','Olyfant','golyfant3@businessinsider.com'),(5,'Fidelio','Lippingwell','flippingwell4@dailymail.co.uk'),(6,'Jennine','Wortt','jwortt5@php.net'),(7,'Frants','Limer','flimer6@pbs.org'),(8,'Aloysia','Gorling','agorling7@spotify.com'),(9,'Scotty','Spaducci','sspaducci8@sina.com.cn'),(10,'Netta','Raffin','nraffin9@sakura.ne.jp'),(11,'Elysha','Persich','epersicha@gov.uk'),(12,'Taylor','Gilberthorpe','tgilberthorpeb@slashdot.org'),(13,'Lizzie','Brimner','lbrimnerc@typepad.com'),(14,'Libbey','Mechell','lmechelld@github.io'),(15,'Thorin','Foord','tfoorde@irs.gov'),(16,'Queenie','McVanamy','qmcvanamyf@sina.com.cn'),(17,'Carr','Butterwick','cbutterwickg@skype.com'),(18,'Sybyl','Webben','swebbenh@google.ru'),(19,'Ernaline','Westrope','ewestropei@tinyurl.com'),(20,'Stefa','Durand','sdurandj@ibm.com'),(21,'Michal','Battabee','mbattabeek@tinyurl.com'),(22,'Aubree','Battram','abattraml@cornell.edu'),(23,'Elwood','Wright','ewrightm@army.mil'),(24,'Rowland','Illsley','rillsleyn@barnesandnoble.com'),(25,'Haroun','Savory','hsavoryo@purevolume.com'),(26,'Jeffrey','Lucy','jlucyp@cisco.com'),(27,'Ashlen','Kellitt','akellittq@ebay.com'),(28,'Hamil','Gounin','hgouninr@wiley.com'),(29,'Cristal','Cudbird','ccudbirds@etsy.com'),(30,'Dwayne','Clute','dclutet@webs.com'),(31,'Stevie','Favelle','sfavelleu@gov.uk'),(32,'Ely','Tames','etamesv@edublogs.org'),(33,'Kiersten','Durno','kdurnow@so-net.ne.jp'),(34,'Dallas','Fairbanks','dfairbanksx@paypal.com'),(35,'Madlin','Kilbride','mkilbridey@edublogs.org'),(36,'Garv','Follen','gfollenz@senate.gov'),(37,'Sherwin','Hubbis','shubbis10@jugem.jp'),(38,'Edgard','Mouland','emouland11@wix.com'),(39,'Elmer','Storrier','estorrier12@addthis.com'),(40,'Giovanni','Calender','gcalender13@imdb.com'),(41,'Lory','McCoole','lmccoole14@shop-pro.jp'),(42,'Esteban','Goodge','egoodge15@microsoft.com'),(43,'Easter','Lynthal','elynthal16@blinklist.com'),(44,'Jeanie','Aguirrezabala','jaguirrezabala17@rediff.com'),(45,'Jamaal','Lembrick','jlembrick18@dion.ne.jp'),(46,'Aime','Gerhartz','agerhartz19@cam.ac.uk'),(47,'Kassie','Warret','kwarret1a@cisco.com'),(48,'Perle','Yushankin','pyushankin1b@wufoo.com'),(49,'Mollee','Renouf','mrenouf1c@51.la'),(50,'Giorgio','Meaddowcroft','gmeaddowcroft1d@tuttocitta.it'),(51,'Matthew','Romero','aapineruar867@gmail.com'),(52,'Matthew','Romero','emicalde@icloud.com'),(53,'Shreeka','Thangarasu','emicalde@icloud.com'),(54,'Oliver','Rainer','oliver@icloud.com');
+INSERT INTO `Students` VALUES (1,'Constantine','McCorry','cmccorry0@constantcontact.com'),(2,'Trula','Milsted','tmilsted1@instagram.com'),(3,'Catherina','Armitage','carmitage2@last.fm'),(4,'Genevieve','Olyfant','golyfant3@businessinsider.com'),(5,'Fidelio','Lippingwell','flippingwell4@dailymail.co.uk'),(6,'Jennine','Wortt','jwortt5@php.net'),(7,'Frants','Limer','flimer6@pbs.org'),(8,'Aloysia','Gorling','agorling7@spotify.com'),(9,'Scotty','Spaducci','sspaducci8@sina.com.cn'),(10,'Netta','Raffin','nraffin9@sakura.ne.jp'),(11,'Elysha','Persich','epersicha@gov.uk'),(12,'Taylor','Gilberthorpe','tgilberthorpeb@slashdot.org'),(13,'Lizzie','Brimner','lbrimnerc@typepad.com'),(14,'Libbey','Mechell','lmechelld@github.io'),(15,'Thorin','Foord','tfoorde@irs.gov'),(16,'Queenie','McVanamy','qmcvanamyf@sina.com.cn'),(17,'Carr','Butterwick','cbutterwickg@skype.com'),(18,'Sybyl','Webben','swebbenh@google.ru'),(19,'Ernaline','Westrope','ewestropei@tinyurl.com'),(20,'Stefa','Durand','sdurandj@ibm.com'),(21,'Michal','Battabee','mbattabeek@tinyurl.com'),(22,'Aubree','Battram','abattraml@cornell.edu'),(23,'Elwood','Wright','ewrightm@army.mil'),(24,'Rowland','Illsley','rillsleyn@barnesandnoble.com'),(25,'Haroun','Savory','hsavoryo@purevolume.com'),(26,'Jeffrey','Lucy','jlucyp@cisco.com'),(27,'Ashlen','Kellitt','akellittq@ebay.com'),(28,'Hamil','Gounin','hgouninr@wiley.com'),(29,'Cristal','Cudbird','ccudbirds@etsy.com'),(30,'Dwayne','Clute','dclutet@webs.com'),(31,'Stevie','Favelle','sfavelleu@gov.uk'),(32,'Ely','Tames','etamesv@edublogs.org'),(33,'Kiersten','Durno','kdurnow@so-net.ne.jp'),(34,'Dallas','Fairbanks','dfairbanksx@paypal.com'),(35,'Madlin','Kilbride','mkilbridey@edublogs.org'),(36,'Garv','Follen','gfollenz@senate.gov'),(37,'Sherwin','Hubbis','shubbis10@jugem.jp'),(38,'Edgard','Mouland','emouland11@wix.com'),(39,'Elmer','Storrier','estorrier12@addthis.com'),(40,'Giovanni','Calender','gcalender13@imdb.com'),(41,'Lory','McCoole','lmccoole14@shop-pro.jp'),(42,'Esteban','Goodge','egoodge15@microsoft.com'),(43,'Easter','Lynthal','elynthal16@blinklist.com'),(44,'Jeanie','Aguirrezabala','jaguirrezabala17@rediff.com'),(45,'Jamaal','Lembrick','jlembrick18@dion.ne.jp'),(46,'Aime','Gerhartz','agerhartz19@cam.ac.uk'),(47,'Kassie','Warret','kwarret1a@cisco.com'),(48,'Perle','Yushankin','pyushankin1b@wufoo.com'),(49,'Mollee','Renouf','mrenouf1c@51.la'),(50,'Giorgio','Meaddowcroft','gmeaddowcroft1d@tuttocitta.it');
 /*!40000 ALTER TABLE `Students` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -185,7 +156,7 @@ CREATE TABLE `Teachers` (
 
 LOCK TABLES `Teachers` WRITE;
 /*!40000 ALTER TABLE `Teachers` DISABLE KEYS */;
-INSERT INTO `Teachers` VALUES (1,'Steffi','Creavan','screavan0@studiopress.com'),(2,'Christyna','McPolin','cmcpolin1@msu.edu'),(3,'Fitzgerald','Well','fwell2@quantcast.com'),(4,'Blinni','Bjerkan','bbjerkan3@zdnet.com'),(5,'Andrea','Correa','andy08@icloud.com'),(6,'Andres','Pine','aapineruar867@gmail.com'),(7,'Matthew','Romero','mattheweduaromero07@gmail.com'),(8,'Rafael','Romero','rafaelromero@icloud.com'),(9,'Emma','Romero','emmrom10@icloud.com'),(10,'Moana','Romero','oliver@icloud.com');
+INSERT INTO `Teachers` VALUES (1,'Steffi','Creavan','screavan0@studiopress.com'),(2,'Christyna','McPolin','cmcpolin1@msu.edu'),(3,'Fitzgerald','Well','fwell2@quantcast.com'),(4,'Blinni','Bjerkan','bbjerkan3@zdnet.com');
 /*!40000 ALTER TABLE `Teachers` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
