@@ -99,7 +99,7 @@ export default function AddClassModalContent({onClose}) {
             newSchedule[index] = { ...newSchedule[index], startTime: newStartTime };
 
             if (newStartTime >= newSchedule[index].endTime && newSchedule[index].endTime !== 100) {
-                console.log(`Warning: Start time (${newStartTime}) should be less than end time (${newSchedule[index].endTime})`);
+                alert(`Warning: Start time (${newStartTime}) should be less than end time (${newSchedule[index].endTime})`);
             }
 
             return { ...prevFormData, schedule: newSchedule };
@@ -114,7 +114,7 @@ export default function AddClassModalContent({onClose}) {
             newSchedule[index] = { ...newSchedule[index], endTime: newEndTime };
             
             if (newEndTime <= newSchedule[index].startTime && newSchedule[index].startTime !== -1) {
-                console.log(`Warning: End time (${newEndTime}) should be greater than start time (${newSchedule[index].startTime})`);
+                alert(`Warning: End time (${newEndTime}) should be greater than start time (${newSchedule[index].startTime})`);
             }
             
             return { ...prevFormData, schedule: newSchedule };
@@ -171,7 +171,7 @@ export default function AddClassModalContent({onClose}) {
                         (newEnd > prevStart && newEnd <= prevEnd) ||
                         (newStart <= prevStart && newEnd >= prevEnd)){
                             //error message
-                            console.log(`Time Conflict on ${newClassDay.dayName} from ${prevStart} to ${prevEnd}`)
+                            alert(`Time Conflict on ${newClassDay.dayName} from ${prevStart} to ${prevEnd}`)
                             return false; //Conflict is found
                             
                     }
