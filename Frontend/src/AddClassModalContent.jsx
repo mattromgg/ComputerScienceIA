@@ -131,18 +131,18 @@ export default function AddClassModalContent({onClose}) {
             if(day.startTime === -1 && day.endTime === 100) {
                 emptyCount++;
             }else if (day.startTime !== -1 && day.endTime === 100) {
-                console.log("The End Time for " + day.dayName + " is missing")
+                alert("The End Time for " + day.dayName + " is missing")
                 isValid = false;
                 return 0
             }else if (day.startTime === -1 && day.endTime !== 100) {
-                console.log("The Start Time for " + day.dayName + " is missing")
+                alert("The Start Time for " + day.dayName + " is missing")
                 isValid = false;
                 return 0
             }
         })
         // Checking to see if no there was no schedule input
         if (emptyCount === 7){
-            console.log("You must have at least one slot entry.") //Error msg
+            alert("You must have at least one slot entry.") //Error msg
             isValid = false;
         }
 
